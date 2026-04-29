@@ -34,7 +34,6 @@ button {
   border: none;
   cursor: pointer;
 }
-h2 { margin-bottom: 20px; }
 </style>
 </head>
 
@@ -42,60 +41,54 @@ h2 { margin-bottom: 20px; }
 
 <h2>🚀 TrendingVerse CMS</h2>
 
-<!-- LOGIN / SIGNUP -->
 <div class="card" id="authBox">
-  <h3>Login / Signup</h3>
   <input id="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
 
-  <button onclick="signup()">Sign Up</button>
-  <button onclick="login()">Login</button>
+  <button id="signupBtn">Sign Up</button>
+  <button id="loginBtn">Login</button>
 </div>
 
-<!-- DASHBOARD -->
 <div class="card" id="dashboard" style="display:none">
   <h3>Dashboard</h3>
 
-  <button onclick="logout()">Logout</button>
+  <button id="logoutBtn">Logout</button>
 
   <input id="topic" placeholder="Enter topic">
+  <button id="generateBtn">Generate Article</button>
 
-  <button onclick="generate()">Generate Article</button>
+  <textarea id="content" rows="10"></textarea>
 
-  <textarea id="content" rows="10" placeholder="Generated article will appear here"></textarea>
-
-  <button onclick="saveArticle()">Save Article</button>
+  <button id="saveBtn">Save Article</button>
 </div>
 
 <script>
 const SUPABASE_URL = "https://xnsodbqqvjojlzynhvce.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhuc29kYnFxdmpvamx6eW5odmNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NDk5MDIsImV4cCI6MjA5MzAyNTkwMn0.I9BVAH2w-gixGu-4l0HG9mmR6cDuFxbyd3Z0s1ptX9I";
 
-const API = "/api";
-
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let user = null;
 
-/* ================= AUTH ================= */
+/* ========= AUTH ========= */
 
 async function signup(){
   const { error } = await supabase.auth.signUp({
-    email: email.value,
-    password: password.value
+    email: document.getElementById("email").value,
+    password: document.getElementById("password").value
   });
 
   if(error){
     alert(error.message);
   } else {
-    alert("Signup successful. Please login.");
+    alert("Signup successful. Now login.");
   }
 }
 
 async function login(){
   const { data, error } = await supabase.auth.signInWithPassword({
-    email: email.value,
-    password: password.value
+    email: document.getElementById("email").value,
+    password: document.getElementById("password").value
   });
 
   if(error){
@@ -112,7 +105,7 @@ async function logout(){
   location.reload();
 }
 
-/* ================= SESSION ================= */
+/* ========= SESSION ========= */
 
 async function checkSession(){
   const { data } = await supabase.auth.getSession();
@@ -128,7 +121,7 @@ function showDashboard(){
   document.getElementById("dashboard").style.display = "block";
 }
 
-/* ================= CMS ================= */
+/* ========= CMS ========= */
 
 async function generate(){
 
@@ -137,26 +130,19 @@ async function generate(){
     return;
   }
 
-  if(!topic.value){
+  const topic = document.getElementById("topic").value;
+
+  if(!topic){
     alert("Enter topic");
     return;
   }
 
-  try{
-    const res = await fetch(`${API}/generate`,{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ topic: topic.value })
-    });
+  const article = `
+  <h1>${topic}</h1>
+  <p>This is a demo article about ${topic}.</p>
+  `;
 
-    const data = await res.json();
-
-    content.value = data.article;
-
-  }catch(e){
-    alert("Error generating article");
-    console.error(e);
-  }
+  document.getElementById("content").value = article;
 }
 
 async function saveArticle(){
@@ -166,15 +152,13 @@ async function saveArticle(){
     return;
   }
 
-  if(!content.value){
-    alert("No content to save");
-    return;
-  }
+  const title = document.getElementById("topic").value;
+  const content = document.getElementById("content").value;
 
   const { error } = await supabase.from('articles').insert([{
     user_id: user.id,
-    title: topic.value,
-    content: content.value,
+    title,
+    content,
     status: "draft"
   }]);
 
@@ -182,11 +166,19 @@ async function saveArticle(){
     alert("Error saving article");
     console.error(error);
   } else {
-    alert("Article saved successfully!");
+    alert("Saved successfully");
   }
 }
 
-/* ================= INIT ================= */
+/* ========= BUTTON BINDING ========= */
+
+document.getElementById("signupBtn").onclick = signup;
+document.getElementById("loginBtn").onclick = login;
+document.getElementById("logoutBtn").onclick = logout;
+document.getElementById("generateBtn").onclick = generate;
+document.getElementById("saveBtn").onclick = saveArticle;
+
+/* ========= INIT ========= */
 
 checkSession();
 
