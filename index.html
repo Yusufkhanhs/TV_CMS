@@ -66,7 +66,8 @@ button {
 const SUPABASE_URL = "https://xnsodbqqvjojlzynhvce.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhuc29kYnFxdmpvamx6eW5odmNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NDk5MDIsImV4cCI6MjA5MzAyNTkwMn0.I9BVAH2w-gixGu-4l0HG9mmR6cDuFxbyd3Z0s1ptX9I";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = window.supabaseClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+window.supabaseClient = supabase;
 
 let user = null;
 
